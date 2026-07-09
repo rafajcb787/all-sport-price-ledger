@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#08263d" />
+    <title>All Sport Price Ledger</title>
+    <meta name="description" content="All Sport International inventory pricing dashboard." />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand-lockup"><img src="all-sport-logo.jpg" alt="All Sport International" /><span class="brand-chip">PRICING OPS</span></div>
+        <nav class="nav-list" aria-label="Primary navigation">
+          <button class="nav-item active" data-view="overview"><span>â—ˆ</span> Price ledger</button>
+          <button class="nav-item" data-view="catalog"><span>â–¦</span> Catalog</button>
+          <button class="nav-item" data-view="history"><span>â—Œ</span> Change history</button>
+          <button class="nav-item" data-view="about"><span>i</span> About</button>
+        </nav>
+        <div class="sidebar-note"><span class="live-dot"></span> Workbook synced<br /><small>07 Sep 2026 Â· 2,848 SKUs</small></div>
+        <div class="sidebar-footer"><div class="avatar">AS</div><div><strong>All Sport Team</strong><small>International pricing</small></div></div>
+      </aside>
+
+      <section class="workspace">
+        <header class="topbar"><div><p class="eyebrow">All Sport International / Operations</p><h1 id="page-title">Price intelligence dashboard</h1></div><div class="top-actions"><button class="ghost-button" id="export-button">â‡© Export catalog</button><div class="status-pill"><span class="live-dot"></span> Local ledger</div></div></header>
+        <main class="content">
+          <div id="summary-shell">
+            <section class="hero-row"><div><h2>Know every price.<br /><em>Move with confidence.</em></h2><p>Search the full item catalog, review cost-to-price health, and keep every update accountable.</p></div><div class="hero-stamp"><span>01</span><strong>Price<br />intelligence</strong><small>Built for All Sport International</small></div></section>
+            <section class="metrics-grid" id="metrics"></section>
+          </div>
+
+          <section class="view-panel active" id="overview-view" aria-label="Price ledger overview"><div class="overview-grid"><div class="focus-card"><div class="focus-orbit orbit-one"></div><div class="focus-orbit orbit-two"></div><div class="section-kicker">Your next move</div><h3>Keep the catalog<br /><em>in motion.</em></h3><p>Spot margin pressure, make a considered update, and leave a trail your team can trust.</p><button class="primary-button" data-view="catalog">Open full catalog <span>â†’</span></button><div class="focus-foot" id="focus-foot"></div></div><div class="spotlight-card"><div class="spotlight-head"><div><div class="section-kicker">Activity pulse</div><h3 id="pulse-title">Margin watchlist</h3></div><button class="text-button" id="pulse-link">Review items <span>â†’</span></button></div><div id="pulse-list"></div></div><div class="health-card"><div class="spotlight-head"><div><div class="section-kicker">Portfolio health</div><h3>Margin distribution</h3></div><span class="health-score" id="health-score">0%</span></div><div class="health-visual"><div class="health-ring" id="health-ring"><span id="avg-margin">0<small>avg margin</small></span></div><div class="bar-stack" id="health-bars"></div></div><button class="insight-link" data-filter="margin" data-view="catalog">See low-margin items <span>â†’</span></button></div><div class="quick-card"><div><div class="section-kicker">Shortcuts</div><h3>Make the next update feel easy.</h3></div><div class="quick-actions"><button data-view="catalog"><span>âŒ•</span><strong>Find an item</strong><small>Search all SKUs</small></button><button id="quick-export"><span>â‡©</span><strong>Export a snapshot</strong><small>Download the catalog</small></button><button data-view="about"><span>i</span><strong>About this tool</strong><small>Built by Rafael Castrillo Beltran</small></button></div></div></div></section>
+
+          <section class="view-panel" id="catalog-view"><div class="ledger-card"><div class="ledger-head"><div><div class="section-kicker">Master catalog</div><h3>All items <span id="result-count">0</span></h3></div><div class="ledger-tools"><label class="search-box"><span>âŒ•</span><input id="search-input" placeholder="Search item numberâ€¦" aria-label="Search items" /><kbd>âŒ˜ K</kbd></label><select id="filter-select" aria-label="Filter catalog"><option value="all">All items</option><option value="changed">Changed prices</option><option value="margin">Margin under 25%</option></select></div></div><div class="table-wrap"><table><thead><tr><th>Item</th><th>Cost</th><th>Current price</th><th>Margin</th><th>Last activity</th><th></th></tr></thead><tbody id="catalog-body"></tbody></table><div class="empty-state" id="empty-state" hidden><span>âŒ•</span><strong>No items found</strong><p>Try another item number or filter.</p></div></div><div class="pagination"><span id="pagination-label"></span><div class="page-actions"><select id="page-size"><option value="25">25 / page</option><option value="50" selected>50 / page</option><option value="100">100 / page</option></select><button id="prev-page">â€¹</button><span id="page-label"></span><button id="next-page">â€º</button></div></div></div><aside class="detail-card" id="detail-card"></aside></section>
+
+          <section class="view-panel" id="history-view"><div class="history-page-head"><div><div class="section-kicker">Accountability by design</div><h2>Every change has a story.</h2><p>Review the complete price trail across the catalog, with the reason and moment captured alongside each update.</p></div><div class="history-total"><strong id="history-total">0</strong><span>total changes</span></div></div><div id="history-content"></div></section>
+
+          <section class="view-panel" id="about-view"><div class="about-hero"><div><div class="section-kicker">About the tool</div><h2>Built to make<br /><em>every price clearer.</em></h2><p>The All Sport International Price Ledger turns a working inventory workbook into a shared, searchable operating surface for the team.</p></div><div class="about-mark"><span>AS</span><small>INTERNATIONAL<br />PRICING OPS</small></div></div><div class="about-grid"><article><span class="about-number">01</span><h3>Made by Rafael Castrillo Beltran</h3><p>Designed and built for All Sport International to make item pricing easier to search, safer to edit, and simpler to explain when a number changes.</p></article><article><span class="about-number">02</span><h3>From workbook to workflow</h3><p>The catalog starts with the supplied inventory file, then adds margin signals, filters, quick actions, and a reason-first audit trail around the data.</p></article><article><span class="about-number">03</span><h3>A calm layer of control</h3><p>Use the dashboard to move quickly without losing context. Edits are saved in this browser so the ledger is useful even on a static host.</p></article></div><div class="about-footer"><span>ALL SPORT INTERNATIONAL</span><strong>Price intelligence, with a human reason behind every change.</strong><button class="text-button" data-view="catalog">Explore the catalog <span>â†’</span></button></div></section>
+
+          <p class="footer-note"><span>â—</span> Cost basis: inventory_items_cost_and_price_07-09-2026.xlsx Â· Values shown in USD Â· Static-host edition saves edits in this browser.</p>
+        </main>
+      </section>
+    </div>
+    <div class="modal-backdrop" id="edit-modal" hidden><div class="modal" role="dialog" aria-modal="true" aria-labelledby="edit-title"><button class="modal-close" id="close-modal" aria-label="Close">Ã—</button><div class="section-kicker">Update catalog price</div><h3 id="edit-title"></h3><p class="modal-subtitle" id="edit-subtitle"></p><label>New price<input id="new-price" type="number" min="0" step="0.01" /></label><label>Why is this changing?<textarea id="change-reason" rows="3" placeholder="e.g. Supplier cost update, seasonal campaignâ€¦"></textarea></label><div class="modal-foot"><span>Every change is added to the audit trail.</span><div><button class="ghost-button" id="cancel-edit">Cancel</button><button class="primary-button" id="save-edit">Save price change <span>â†’</span></button></div></div></div></div>
+    <div class="toast" id="toast" hidden><span>âœ“</span><b id="toast-text"></b></div>
+    <script src="app.js" defer></script>
+  </body>
+</html>
+
