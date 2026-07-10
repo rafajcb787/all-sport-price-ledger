@@ -36,19 +36,30 @@ export default function Home() {
   const [view, setView] = useState<View>("overview");
 
   useEffect(() => {
-    Promise.resolve().then(() => {
-      try {
-        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
-        if (saved?.items || saved?.costs) setItems(seedItems.map((item) => ({ ...item, ...(saved?.items?.[item.id] === undefined ? {} : { price: Number(saved.items[item.id]) }), ...(saved?.costs?.[item.id] === undefined ? {} : { cost: Number(saved.costs[item.id]) }) })));
-        if (saved?.history) setHistory(saved.history);
-      } catch { /* use workbook seed */ }
-    });
+    let saved: { items?: Record<string, number>; costs?: Record<string, number>; history?: HistoryEntry[] } | null = null;
+    try {
+      saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
+      if (saved?.items || saved?.costs) setItems(seedItems.map((item) => ({ ...item, ...(saved?.items?.[item.id] === undefined ? {} : { price: Number(saved.items[item.id]) }), ...(saved?.costs?.[item.id] === undefined ? {} : { cost: Number(saved.costs[item.id]) }) })));
+      if (saved?.history) setHistory(saved.history);
+    } catch { /* use workbook seed */ }
+    const localHistory = Array.isArray(saved?.history) ? saved.history : [];
     fetch("/api/prices", { cache: "no-store" }).then((response) => response.ok ? response.json() : null).then((payload) => {
       if (!payload) return;
       setSyncMode(payload.storage === "shared" ? "shared" : "local");
       if (payload.items) setItems((current) => current.map((item) => payload.items[item.id] === undefined ? item : { ...item, price: payload.items[item.id] }));
       if (payload.costs) setItems((current) => current.map((item) => payload.costs[item.id] === undefined ? item : { ...item, cost: payload.costs[item.id] }));
       if (payload.history?.length) setHistory(payload.history);
+      const remoteIds = new Set((payload.history ?? []).map((entry: HistoryEntry) => entry.id));
+      const pending = localHistory.filter((entry) => entry?.id && !remoteIds.has(entry.id));
+      if (payload.storage === "shared" && pending.length) {
+        void (async () => {
+          for (const entry of pending.slice().sort((a, b) => a.changedAt.localeCompare(b.changedAt))) {
+            const response = await fetch("/api/prices", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ ...entry, field: entry.field ?? "price", changedBy: entry.changedBy || "You" }) });
+            if (!response.ok) throw new Error("Local history sync failed");
+          }
+          setToast(`${pending.length} older local edit${pending.length === 1 ? "" : "s"} recovered to the shared ledger.`);
+        })().catch(() => { setSyncMode("local"); setToast("An older local edit could not be synced to the shared ledger."); });
+      }
     }).catch(() => setSyncMode("local")).finally(() => setLoaded(true));
   }, []);
 
