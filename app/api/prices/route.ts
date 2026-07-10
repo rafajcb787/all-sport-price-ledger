@@ -4,10 +4,8 @@ type ChangeEntry = { itemId: string; field?: "price" | "cost"; from: number; to:
 
 async function getDatabase(): Promise<D1Database | null> {
   try {
-    // Keep the worker-only module out of local Windows ARM builds; Cloudflare
-    // resolves it in the deployed worker runtime.
-    const runtime = await (0, eval)("import('cloudflare:workers')");
-    return runtime.env?.DB ?? null;
+    const runtime = await import("cloudflare:workers");
+    return (runtime.env as { DB?: D1Database }).DB ?? null;
   } catch {
     return null;
   }
