@@ -45,7 +45,7 @@ export async function POST(request: Request) {
   try {
     const body = await request.json() as ChangeEntry;
     const field = body.field ?? "price";
-    if (!body.itemId || !Number.isFinite(body.to) || body.to < 0 || !body.reason?.trim() || !body.changedBy?.trim()) return Response.json({ error: "itemId, field, to, reason, and changedBy are required" }, { status: 400 });
+    if ((field !== "price" && field !== "cost") || !body.itemId || !Number.isFinite(body.to) || body.to < 0 || !body.reason?.trim() || !body.changedBy?.trim()) return Response.json({ error: "itemId, field, to, reason, and changedBy are required" }, { status: 400 });
     const db = await getDatabase();
     if (!db) return Response.json({ error: "Ledger persistence is not available in this environment." }, { status: 503 });
     await ensureSchema(db);
