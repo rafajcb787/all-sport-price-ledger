@@ -32,6 +32,7 @@ button { cursor:pointer; touch-action:manipulation; }
 .ghost-button { border:1px solid #d6e0e5; background:#fff; color:var(--ink); border-radius:7px; padding:10px 13px; font-size:12px; font-weight:700; }
 .ghost-button:hover { border-color:#a5c4d1; background:#f7fbfc; }
 .status-pill { color:#4b6470; border:1px solid #d9e3e7; border-radius:99px; background:#fff; padding:9px 12px; font-size:11px; }
+.status-pill.local-status { color:#a15c2c; border-color:#ecd3b9; background:#fffaf4; }
 .content { padding:38px 42px 30px; max-width:1600px; margin:0 auto; }
 .hero-row { display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:32px; animation:rise-in .5s ease both; }
 .hero-row h2 { margin:0; font-size:39px; line-height:1.04; letter-spacing:-.05em; font-weight:700; color:var(--navy); }
