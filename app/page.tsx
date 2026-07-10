@@ -32,6 +32,7 @@ export default function Home() {
   const [changedBy, setChangedBy] = useState("");
   const [toast, setToast] = useState("");
   const [loaded, setLoaded] = useState(false);
+  const [syncMode, setSyncMode] = useState<"loading" | "shared" | "local">("loading");
   const [view, setView] = useState<View>("overview");
 
   useEffect(() => {
@@ -42,12 +43,13 @@ export default function Home() {
         if (saved?.history) setHistory(saved.history);
       } catch { /* use workbook seed */ }
     });
-    fetch("/api/prices").then((response) => response.ok ? response.json() : null).then((payload) => {
+    fetch("/api/prices", { cache: "no-store" }).then((response) => response.ok ? response.json() : null).then((payload) => {
       if (!payload) return;
+      setSyncMode(payload.storage === "shared" ? "shared" : "local");
       if (payload.items) setItems((current) => current.map((item) => payload.items[item.id] === undefined ? item : { ...item, price: payload.items[item.id] }));
       if (payload.costs) setItems((current) => current.map((item) => payload.costs[item.id] === undefined ? item : { ...item, cost: payload.costs[item.id] }));
       if (payload.history?.length) setHistory(payload.history);
-    }).catch(() => undefined).finally(() => setLoaded(true));
+    }).catch(() => setSyncMode("local")).finally(() => setLoaded(true));
   }, []);
 
   const changedIds = useMemo(() => new Set(history.map((entry) => entry.itemId)), [history]);
@@ -97,8 +99,16 @@ export default function Home() {
     const overrideMap = Object.fromEntries(nextItems.filter((item, index) => item.price !== seedItems[index].price).map((item) => [item.id, item.price]));
     const costOverrideMap = Object.fromEntries(nextItems.filter((item, index) => item.cost !== seedItems[index].cost).map((item) => [item.id, item.cost]));
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ items: overrideMap, costs: costOverrideMap, history: nextHistory }));
-    entries.forEach((entry) => fetch("/api/prices", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(entry) }).catch(() => undefined));
-    setToast(`${editing.id} ${entries.length > 1 ? "price and cost" : entries[0].field} updated and logged.`);
+    void (async () => {
+      const responses = await Promise.all(entries.map((entry) => fetch("/api/prices", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(entry) })));
+      if (responses.every((response) => response.ok)) {
+        setSyncMode("shared");
+        setToast(`${editing.id} ${entries.length > 1 ? "price and cost" : entries[0].field} saved to the shared ledger.`);
+      } else {
+        setSyncMode("local");
+        setToast("Saved on this device only. The shared ledger is unavailable.");
+      }
+    })().catch(() => { setSyncMode("local"); setToast("Saved on this device only. Check the shared ledger connection."); });
   }
 
   function exportCsv() {
@@ -128,7 +138,7 @@ export default function Home() {
       </aside>
 
       <section className="workspace">
-        <header className="topbar"><div><p className="eyebrow">All Sport International / Operations</p><h1>{view === "about" ? "About the ledger" : view === "history" ? "Change history" : view === "catalog" ? "Master catalog" : "Price intelligence dashboard"}</h1></div><div className="top-actions"><button className="ghost-button" onClick={exportCsv}>Export catalog</button><div className="status-pill"><span className="live-dot" /> {loaded ? "Live ledger" : "Loading ledger"}</div></div></header>
+        <header className="topbar"><div><p className="eyebrow">All Sport International / Operations</p><h1>{view === "about" ? "About the ledger" : view === "history" ? "Change history" : view === "catalog" ? "Master catalog" : "Price intelligence dashboard"}</h1></div><div className="top-actions"><button className="ghost-button" onClick={exportCsv}>Export catalog</button><div className={`status-pill ${syncMode === "local" ? "local-status" : ""}`}><span className="live-dot" /> {!loaded ? "Loading ledger" : syncMode === "shared" ? "Shared ledger" : "This device only"}</div></div></header>
 
         <div className="content">
           {view !== "about" && <>
