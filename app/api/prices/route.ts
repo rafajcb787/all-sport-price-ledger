@@ -23,7 +23,7 @@ async function ensureSchema(db: D1Database) {
 export async function GET() {
   try {
     const db = await getDatabase();
-    if (!db) return Response.json({ items: {}, costs: {}, history: [] });
+    if (!db) return Response.json({ storage: "local", items: {}, costs: {}, history: [] }, { headers: { "Cache-Control": "no-store" } });
     await ensureSchema(db);
     const [prices, costs, priceHistory, costHistory] = await Promise.all([
       db.prepare("SELECT item_id, price FROM inventory_prices").all<{ item_id: string; price: number }>(),
@@ -35,9 +35,9 @@ export async function GET() {
       ...(priceHistory.results ?? []).map((row) => ({ id: row.id, itemId: row.item_id, field: "price" as const, from: row.fromPrice, to: row.toPrice, reason: row.reason, changedBy: row.changedBy, changedAt: row.changedAt })),
       ...(costHistory.results ?? []).map((row) => ({ id: row.id, itemId: row.item_id, field: "cost" as const, from: row.fromCost, to: row.toCost, reason: row.reason, changedBy: row.changedBy, changedAt: row.changedAt })),
     ].sort((a, b) => b.changedAt.localeCompare(a.changedAt));
-    return Response.json({ items: Object.fromEntries((prices.results ?? []).map((row) => [row.item_id, row.price])), costs: Object.fromEntries((costs.results ?? []).map((row) => [row.item_id, row.cost])), history });
+    return Response.json({ storage: "shared", items: Object.fromEntries((prices.results ?? []).map((row) => [row.item_id, row.price])), costs: Object.fromEntries((costs.results ?? []).map((row) => [row.item_id, row.cost])), history }, { headers: { "Cache-Control": "no-store" } });
   } catch {
-    return Response.json({ items: {}, costs: {}, history: [] });
+    return Response.json({ storage: "local", items: {}, costs: {}, history: [] }, { headers: { "Cache-Control": "no-store" } });
   }
 }
 
